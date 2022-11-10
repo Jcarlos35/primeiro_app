@@ -17,8 +17,8 @@
 
       <ion-grid>
         <ion-row>
-          <ion-col size="6" :key="photo" v-for="photo in photos">
-            <ion-img :src="photo.webviewPath"></ion-img>
+          <ion-col size="12" :key="photo" v-for="photo in photos">
+            <ion-img :src="photo.webviewPath" @click="showActionSheet(photo)"></ion-img>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+import {actionSheetController, IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
 import { camera, trash, close } from 'ionicons/icons';
 import { usePhotoGallery, userPhoto } from '@/composable/usePhotoGallery';
 
@@ -43,9 +43,26 @@ export default defineComponent({
   name: 'Tab1Page',
   components: { IonHeader, IonToolbar, IonTitle, IonContent, IonPage },
   setup() {
-    const { takePhoto, photos } = usePhotoGallery();
+    const showActionSheet = async (photos: userPhoto) => {
+      const actionSheet = await actionSheetController.create({
+        header: 'Photos',
+        buttons: [{
+          text: 'Delete',
+          role:'destrutive',
+          icon: trash,
+          handler: () => {
+            deletePhoto(photos)
+          }
+        },
+      ]
+      });
+      await actionSheet.present();
+    }
+    const { takePhoto, photos, deletePhoto } = usePhotoGallery();
     return {
+      showActionSheet,
       takePhoto,
+      deletePhoto,
       photos,
       camera, trash, close
     }
